@@ -55,11 +55,11 @@ class _HomeState extends State<Home> {
                           ),
                         ),
                       ),
-                      if (_notFoundMessage.isNotEmpty) // Check if the message is not empty
+                      if (_notFoundMessage.isNotEmpty)
                         Text(
                           _notFoundMessage,
                           style:
-                              TextStyle(color: Colors.red), // Style as needed
+                              TextStyle(color: Colors.red),
                         ),
                       for (ToDo todoo in _foundToDo.reversed)
                         ToDoItem(
@@ -160,7 +160,7 @@ class _HomeState extends State<Home> {
 
   void _runFilter(String enteredKeyword) {
     List<ToDo> results = [];
-    String message = ""; // Variable to hold the message
+    String message = "";
 
     if (enteredKeyword.isEmpty) {
       results = todosList;
@@ -174,13 +174,13 @@ class _HomeState extends State<Home> {
 
     // Check if results are empty and set the message
     if (results.isEmpty) {
-      message = "Todo not found"; // Set the message
+      message = "Todo not found";
     }
 
     setState(() {
       _foundToDo = results;
       _notFoundMessage =
-          message; // Assuming you have a variable for the message
+          message;
     });
   }
 
