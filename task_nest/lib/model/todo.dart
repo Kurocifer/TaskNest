@@ -10,6 +10,8 @@ class ToDo {
   });
 
   static List<ToDo> todoList() {
-    return [];
+    return [
+      ToDo(id: '00', todoText: 'Live',),
+    ];
   }
 }
