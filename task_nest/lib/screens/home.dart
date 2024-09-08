@@ -174,7 +174,7 @@ class _HomeState extends State<Home> {
 
     // Check if results are empty and set the message
     if (results.isEmpty) {
-      message = "Todo not found";
+      message = "Todo does not exist";
     }
 
     setState(() {
