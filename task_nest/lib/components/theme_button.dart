@@ -13,7 +13,7 @@ class ThemeButton extends StatelessWidget {
     final isBriget = Theme.of(context).brightness == Brightness.light;
 
     return IconButton(
-      tooltip: isBriget ? 'use dark mode' : 'use ligt mode',
+      tooltip: isBriget ? 'use dark theme' : 'use ligt theme',
       icon: isBriget
           ? const Icon(Icons.dark_mode_outlined)
           : const Icon(Icons.light_mode_outlined),

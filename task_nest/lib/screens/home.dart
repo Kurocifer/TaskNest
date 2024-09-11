@@ -2,19 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:task_nest/components/theme_button.dart';
 
 import '../model/todo.dart';
-import '../constants/colors.dart';
 import '../widgets/todo_item.dart';
 
-String _notFoundMessage = "";
+String _notFoundMessage = ""; // the message to be returned when search matches no existing todo
 
 class Home extends StatefulWidget {
   final void Function(bool useLightMode) changeTheme;
   final Color colorSelected;
+  final bool isLightMode;
 
   const Home({
     super.key,
     required this.changeTheme,
     required this.colorSelected,
+    required this.isLightMode,
   });
 
   @override
@@ -34,6 +35,10 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context)
+        .textTheme
+        .apply(displayColor: Theme.of(context).colorScheme.onSurface);
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: _buildAppBar(),
@@ -64,9 +69,11 @@ class _HomeState extends State<Home> {
                         ),
                       ),
                       if (_notFoundMessage.isNotEmpty)
-                        Text(
-                          _notFoundMessage,
-                          style: const TextStyle(color: Colors.red),
+                        Center(
+                          child:  Text(
+                            _notFoundMessage,
+                            style: textTheme.titleLarge,
+                          ),
                         ),
                       for (ToDo todoo in _foundToDo.reversed)
                         ToDoItem(
@@ -84,35 +91,19 @@ class _HomeState extends State<Home> {
             alignment: Alignment.bottomCenter,
             child: Row(children: [
               Expanded(
-                child: Container(
-                  margin: const EdgeInsets.only(
-                    bottom: 20,
-                    right: 20,
-                    left: 20,
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    //color: widget.colorSelected,
-                    //boxShadow: const [
-                     // BoxShadow(
-                        //color: Colors.grey,
-                     //   offset: Offset(0.0, 0.0),
-                     //   blurRadius: 10.0,
-                     //   spreadRadius: 0.0,
-                      //),
-                    //],
-                    borderRadius: BorderRadius.circular(10),
+                child: Card(
+                  elevation: 10.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
                   ),
                   child: TextField(
-                    
                     controller: _todoController,
                     decoration: const InputDecoration(
-                        hintText: 'Add a new todo item',
-                        border: InputBorder.none),
-                  ),
+                      hintText: 'Add a new todo item',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(16.0)
+                    ),
+                  )
                 ),
               ),
               Container(
@@ -125,9 +116,8 @@ class _HomeState extends State<Home> {
                     _addToDoItem(_todoController.text);
                   },
                   style: ElevatedButton.styleFrom(
-                    //primary: tdBlue,
-                    minimumSize: Size(60, 60),
-                    elevation: 10,
+                    minimumSize: const Size(60, 60),
+                    elevation: 10.0,
                   ),
                   child: const Text(
                     '+',
@@ -182,7 +172,7 @@ class _HomeState extends State<Home> {
 
     // Check if results are empty and set the message
     if (results.isEmpty) {
-      message = "Todo does not exist";
+      message = "Todo not found";
     }
 
     setState(() {
@@ -192,47 +182,39 @@ class _HomeState extends State<Home> {
   }
 
   Widget searchBox() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      decoration: BoxDecoration(
-        color: widget.colorSelected,
-        borderRadius: BorderRadius.circular(20),
+    return Card(
+      elevation: 2.0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
       ),
       child: TextField(
         onChanged: (value) => _runFilter(value),
         decoration: const InputDecoration(
-          contentPadding: EdgeInsets.all(0),
-          prefixIcon: Icon(
-            Icons.search,
-            color: tdBlack,
-            size: 20,
-          ),
-          prefixIconConstraints: BoxConstraints(
-            maxHeight: 20,
-            minWidth: 25,
-          ),
+          hintText: 'Search...',
           border: InputBorder.none,
-          hintText: 'Search',
-          hintStyle: TextStyle(color: tdGrey),
+          contentPadding: EdgeInsets.all(16.0),
+          prefixIcon: Icon(Icons.search),
         ),
-      ),
+      )
     );
+    
   }
 
   AppBar _buildAppBar() {
     return AppBar(
-      //backgroundColor: tdBGColor,
-      elevation: 0,
+    backgroundColor: Theme.of(context).colorScheme.surface,
+      elevation: 4.0,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Icon(
             Icons.menu,
-            color: tdBlack,
             size: 30,
           ),
-          ThemeButton(changeThemeMode: widget.changeTheme),
-          Container(
+          ThemeButton(
+            changeThemeMode: widget.changeTheme
+          ),
+          SizedBox(
             height: 40,
             width: 40,
             child: ClipRRect(
