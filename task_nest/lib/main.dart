@@ -3,21 +3,51 @@ import 'package:flutter/services.dart';
 import './screens/home.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const TaskNest());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class TaskNest extends StatefulWidget {
+  const TaskNest({super.key});
 
+  @override
+  State<TaskNest> createState() => _TaskNestState();
+}
+
+class _TaskNestState extends State<TaskNest> {
   // This widget is the root of your application.
+  ThemeMode themeMode = ThemeMode.light; // default theme
+  Color colorSelected = Colors.white; // default app color
+
+  void changeThemeMode(bool useLightMode) {
+    setState(() {
+      themeMode = useLightMode ? ThemeMode.light : ThemeMode.dark;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
-        SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+        const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ToDo App',
-      home: Home(),
+      themeMode: themeMode,
+      theme: ThemeData(
+        colorSchemeSeed: colorSelected,
+        useMaterial3: true,
+        brightness: Brightness.light,
+      ),
+      darkTheme: ThemeData(
+        colorSchemeSeed: colorSelected,
+        useMaterial3: true,
+        brightness: Brightness.dark,
+      ),
+      home: Home(
+        changeTheme: changeThemeMode,
+        colorSelected: colorSelected,
+        isLightMode: themeMode == ThemeMode.light,
+      ),
     );
   }
 }
