@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:task_nest/components/color_button.dart';
 import 'package:task_nest/components/theme_button.dart';
+import 'package:task_nest/constants/colors.dart';
 
 import '../model/todo.dart';
 import '../widgets/todo_item.dart';
 
-String _notFoundMessage = ""; // the message to be returned when search matches no existing todo
+String _notFoundMessage =
+    ""; // the message to be returned when search matches no existing todo
 
 class Home extends StatefulWidget {
   final void Function(bool useLightMode) changeTheme;
-  final Color colorSelected;
-  final bool isLightMode;
+  final void Function(int value) changeColor;
+  final ColorSelection colorSelected;
 
   const Home({
     super.key,
     required this.changeTheme,
+    required this.changeColor,
     required this.colorSelected,
-    required this.isLightMode,
   });
 
   @override
@@ -70,7 +73,7 @@ class _HomeState extends State<Home> {
                       ),
                       if (_notFoundMessage.isNotEmpty)
                         Center(
-                          child:  Text(
+                          child: Text(
                             _notFoundMessage,
                             style: textTheme.titleLarge,
                           ),
@@ -92,19 +95,17 @@ class _HomeState extends State<Home> {
             child: Row(children: [
               Expanded(
                 child: Card(
-                  elevation: 10.0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  child: TextField(
-                    controller: _todoController,
-                    decoration: const InputDecoration(
-                      hintText: 'Add a new todo item',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.all(16.0)
+                    elevation: 10.0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
                     ),
-                  )
-                ),
+                    child: TextField(
+                      controller: _todoController,
+                      decoration: const InputDecoration(
+                          hintText: 'Add a new todo item',
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.all(16.0)),
+                    )),
               ),
               Container(
                 margin: const EdgeInsets.only(
@@ -183,26 +184,24 @@ class _HomeState extends State<Home> {
 
   Widget searchBox() {
     return Card(
-      elevation: 2.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: TextField(
-        onChanged: (value) => _runFilter(value),
-        decoration: const InputDecoration(
-          hintText: 'Search...',
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.all(16.0),
-          prefixIcon: Icon(Icons.search),
+        elevation: 2.0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
         ),
-      )
-    );
-    
+        child: TextField(
+          onChanged: (value) => _runFilter(value),
+          decoration: const InputDecoration(
+            hintText: 'Search...',
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.all(16.0),
+            prefixIcon: Icon(Icons.search),
+          ),
+        ));
   }
 
   AppBar _buildAppBar() {
     return AppBar(
-    backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       elevation: 4.0,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -211,19 +210,29 @@ class _HomeState extends State<Home> {
             Icons.menu,
             size: 30,
           ),
-          ThemeButton(
-            changeThemeMode: widget.changeTheme
-          ),
-          SizedBox(
-            height: 40,
-            width: 40,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.asset('assets/images/cifer.png'),
-            ),
-          ),
+          Row(
+            children: [
+              ThemeButton(
+                changeThemeMode: widget.changeTheme,
+              ),
+              ColorButton(
+                changeColor: widget.changeColor,
+                colorSelected: widget.colorSelected,
+              ),
+              SizedBox(
+                height: 40.0,
+                width: 40.0,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20.0),
+                  child: Image.asset('assets/images/cifer.png'),
+                ),
+              )
+            ],
+          )
         ],
       ),
     );
   }
 }
+
+
