@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:task_nest/components/theme_button.dart';
 
 import '../model/todo.dart';
 import '../constants/colors.dart';
@@ -7,7 +8,14 @@ import '../widgets/todo_item.dart';
 String _notFoundMessage = "";
 
 class Home extends StatefulWidget {
-  Home({Key? key}) : super(key: key);
+  final void Function(bool useLightMode) changeTheme;
+  final Color colorSelected;
+
+  const Home({
+    super.key,
+    required this.changeTheme,
+    required this.colorSelected,
+  });
 
   @override
   State<Home> createState() => _HomeState();
@@ -27,7 +35,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: tdBGColor,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: _buildAppBar(),
       body: Stack(
         children: [
@@ -87,18 +95,19 @@ class _HomeState extends State<Home> {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.grey,
-                        offset: Offset(0.0, 0.0),
-                        blurRadius: 10.0,
-                        spreadRadius: 0.0,
-                      ),
-                    ],
+                    //color: widget.colorSelected,
+                    //boxShadow: const [
+                     // BoxShadow(
+                        //color: Colors.grey,
+                     //   offset: Offset(0.0, 0.0),
+                     //   blurRadius: 10.0,
+                     //   spreadRadius: 0.0,
+                      //),
+                    //],
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: TextField(
+                    
                     controller: _todoController,
                     decoration: const InputDecoration(
                         hintText: 'Add a new todo item',
@@ -186,7 +195,7 @@ class _HomeState extends State<Home> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: widget.colorSelected,
         borderRadius: BorderRadius.circular(20),
       ),
       child: TextField(
@@ -212,16 +221,17 @@ class _HomeState extends State<Home> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: tdBGColor,
+      //backgroundColor: tdBGColor,
       elevation: 0,
       title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Icon(
             Icons.menu,
             color: tdBlack,
             size: 30,
           ),
+          ThemeButton(changeThemeMode: widget.changeTheme),
           Container(
             height: 40,
             width: 40,
@@ -230,7 +240,8 @@ class _HomeState extends State<Home> {
               child: Image.asset('assets/images/cifer.png'),
             ),
           ),
-      ]),
+        ],
+      ),
     );
   }
 }

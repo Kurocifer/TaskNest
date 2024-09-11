@@ -15,14 +15,38 @@ class TaskNest extends StatefulWidget {
 
 class _TaskNestState extends State<TaskNest> {
   // This widget is the root of your application.
+  ThemeMode themeMode = ThemeMode.light; // default theme
+  Color colorSelected = Colors.pink;
+
+  void changeThemeMode(bool useLightMode) {
+    setState(() {
+      themeMode = useLightMode ? ThemeMode.light : ThemeMode.dark;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ToDo App',
-      home: Home(),
+      themeMode: themeMode,
+      theme: ThemeData(
+        colorSchemeSeed: colorSelected,
+        useMaterial3: true,
+        brightness: Brightness.light,
+      ),
+      darkTheme: ThemeData(
+        colorSchemeSeed: colorSelected,
+        useMaterial3: true,
+        brightness: Brightness.dark,
+      ),
+      home: Home(
+        changeTheme: changeThemeMode,
+        colorSelected: colorSelected,
+      ),
     );
   }
 }
