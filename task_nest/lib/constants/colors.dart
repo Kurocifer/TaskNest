@@ -1,9 +1,24 @@
 import 'package:flutter/material.dart';
 
-const Color tdRed = Color(0xFFDA4040);
-const Color tdBlue = Color(0xFF5F52EE);
+enum ColorSelection {
+  // 1
+  deepPurple('Deep Purple', Colors.deepPurple),
+  purple('Purple', Colors.purple),
+  indigo('Indigo', Colors.indigo),
+  blue('Blue', Colors.blue),
+  teal('Teal', Colors.teal),
+  green('Green', Colors.green),
+  yellow('Yellow', Colors.yellow),
+  orange('Orange', Colors.orange),
+  deepOrange('Deep Orange', Colors.deepOrange),
+  pink('Pink', Colors.pink),
+  white('White', Colors.white);
+  // 2
+  const ColorSelection(
+    this.label,
+    this.color,
+  );
 
-const Color tdBlack = Color(0xFF3A3A3A);
-const Color tdGrey = Color(0xFF717171);
-
-const Color tdBGColor = Color(0xFFEEEFF5);
+  final String label;
+  final Color color;
+}
