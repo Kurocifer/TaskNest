@@ -1,6 +1,6 @@
 package models
 
-type UserRegistrationRequest struct {
+type UserAuthRequestBody struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
@@ -8,4 +8,10 @@ type UserRegistrationRequest struct {
 type UserRegistrationResponse struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
+}
+
+type User struct {
+	ID       int
+	Username string
+	Password string
 }
