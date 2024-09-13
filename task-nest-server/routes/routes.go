@@ -10,6 +10,10 @@ import (
 func SetUpRoutes() {
 	db.SetupDatabase()
 
-	http.HandleFunc("/register", controllers.RegisterUser)
-	http.HandleFunc("/lgin", controllers.LoginUser)
+	http.HandleFunc("/tasknest/register", controllers.RegisterUser)
+	http.HandleFunc("/tasknest/login", controllers.LoginUser)
+	http.HandleFunc("/tasknest/todos/create", controllers.CreateTodo)
+	http.HandleFunc("/tasknest/todos/list", controllers.GetTodos)
+	http.HandleFunc("/tasknest/todos/delete", controllers.DeleteTodo)
+	http.HandleFunc("/tasknest/todos/update-status", controllers.UpdateTodoStatus)
 }

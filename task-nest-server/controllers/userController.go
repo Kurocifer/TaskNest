@@ -5,11 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/kurocifer/TaskNest/task-nest-server/db"
 	"github.com/kurocifer/TaskNest/task-nest-server/models"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var jwtKey = []byte("wenderlichPrime_")
 
 func hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -73,6 +77,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	createdUser.ID = int(userID)
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(createdUser)
+	fmt.Println(w)
 }
 
 func LoginUser(w http.ResponseWriter, r *http.Request) {
@@ -99,9 +104,26 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var returnUser models.UserRegistrationResponse
-	returnUser.ID = retrievedUser.ID
-	returnUser.Username = user.Username
+	token, err := genereteJWT(user.Username)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(returnUser)
+	json.NewEncoder(w).Encode(map[string]string{"token": token})
+}
+
+func genereteJWT(username string) (string, error) {
+	expirationTime := time.Now().Add(1 * time.Hour) // expires in 1 hour
+
+	claims := &models.Claims{
+		Username: username,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(jwtKey)
 }
