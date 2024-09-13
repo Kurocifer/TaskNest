@@ -3,7 +3,6 @@ package controllers
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -33,7 +32,6 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	var user models.UserAuthRequestBody
 	json.NewDecoder(r.Body).Decode(&user)
-	fmt.Println(user)
 
 	//check if user already exists
 	query := "SELECT id FROM users WHERE username = ?"
@@ -77,7 +75,6 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	createdUser.ID = int(userID)
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(createdUser)
-	fmt.Println(w)
 }
 
 func LoginUser(w http.ResponseWriter, r *http.Request) {

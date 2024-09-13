@@ -34,5 +34,5 @@ func SetupDatabase() {
 		log.Fatal("Database is unreachable:", err)
 	}
 
-	fmt.Println("Database connection successful")
+	fmt.Println("Database connection successful!")
 }
