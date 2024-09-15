@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:task_nest/components/color_button.dart';
 import 'package:task_nest/components/theme_button.dart';
 import 'package:task_nest/constants/colors.dart';
+import 'package:task_nest/screens/account_details_page.dart';
 
 import '../model/todo.dart';
 import '../widgets/todo_item.dart';
 
-String _notFoundMessage =
-    ""; // the message to be returned when search matches no existing todo
+String _notFoundMessage = ""; // the message to be returned when search matches no existing todo
+Size? screenSize;
 
 class Home extends StatefulWidget {
   final void Function(bool useLightMode) changeTheme;
@@ -26,9 +27,11 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final todosList = ToDo.todoList();
   List<ToDo> _foundToDo = [];
+  final todosList = ToDo.todoList();
   final _todoController = TextEditingController();
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  static const double drawerWidth = 375.0;
 
   @override
   void initState() {
@@ -44,6 +47,8 @@ class _HomeState extends State<Home> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
+      key: scaffoldKey,
+      drawer: _buildDrawer(),
       appBar: _buildAppBar(),
       body: Stack(
         children: [
@@ -78,9 +83,9 @@ class _HomeState extends State<Home> {
                             style: textTheme.titleLarge,
                           ),
                         ),
-                      for (ToDo todoo in _foundToDo.reversed)
+                      for (ToDo todoItem in _foundToDo.reversed)
                         ToDoItem(
-                          todo: todoo,
+                          todo: todoItem,
                           onToDoChanged: _handleToDoChange,
                           onDeleteItem: _deleteToDoItem,
                         ),
@@ -135,6 +140,10 @@ class _HomeState extends State<Home> {
     );
   }
 
+  void openDrawer() {
+    scaffoldKey.currentState!.openDrawer();
+  }
+
   void _handleToDoChange(ToDo todo) {
     setState(() {
       todo.isDone = !todo.isDone;
@@ -184,41 +193,49 @@ class _HomeState extends State<Home> {
 
   Widget searchBox() {
     return Card(
-        elevation: 2.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
+      elevation: 2.0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: TextField(
+        onChanged: (value) => _runFilter(value),
+        decoration: const InputDecoration(
+          hintText: 'Search...',
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.all(16.0),
+          prefixIcon: Icon(Icons.search),
         ),
-        child: TextField(
-          onChanged: (value) => _runFilter(value),
-          decoration: const InputDecoration(
-            hintText: 'Search...',
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.all(16.0),
-            prefixIcon: Icon(Icons.search),
-          ),
-        ));
+      ),
+    );
+  }
+
+  Widget _buildDrawer() {
+    return const SizedBox(
+      width: drawerWidth,
+      
+      child: Drawer(
+        child: AccountDetailsPage(),
+      ),
+    );
   }
 
   AppBar _buildAppBar() {
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.surface,
       elevation: 4.0,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          /*
-          const Icon(
-            Icons.menu,
-            size: 30,
-          ),*/
-          SizedBox(
-            height: 40.0,
-            width: 40.0,
-            child: ClipRRect(
+      leading: IconButton(
+        icon: SizedBox(
+          height: 40.0,
+          width: 40.0,
+          child: ClipRRect(
               borderRadius: BorderRadius.circular(20.0),
-              child: Image.asset('assets/images/cifer.png'),
-            ),
-          ),
+              child: Image.asset('assets/images/cifer.png')),
+        ),
+        onPressed: openDrawer,
+      ),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
           Row(
             children: [
               ColorButton(
