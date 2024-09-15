@@ -1,25 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:task_nest/components/color_button.dart';
 import 'package:task_nest/components/theme_button.dart';
-import 'package:task_nest/constants/colors.dart';
+import 'package:task_nest/constants/constants.dart';
+import 'package:task_nest/model/auth.dart';
 import 'package:task_nest/screens/account_details_page.dart';
+import 'package:go_router/go_router.dart';
 
 import '../model/todo.dart';
 import '../widgets/todo_item.dart';
 
-String _notFoundMessage = ""; // the message to be returned when search matches no existing todo
+String _notFoundMessage =
+    ""; // the message to be returned when search matches no existing todo
 Size? screenSize;
 
 class Home extends StatefulWidget {
   final void Function(bool useLightMode) changeTheme;
   final void Function(int value) changeColor;
   final ColorSelection colorSelected;
+  final int tab;
+  final TaskNestAuth auth;
 
   const Home({
     super.key,
     required this.changeTheme,
     required this.changeColor,
     required this.colorSelected,
+    required this.tab,
+    required this.auth,
   });
 
   @override
@@ -44,7 +51,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    
     // Filter todos based on the value of filter
 
     return Scaffold(
@@ -61,148 +67,154 @@ class _HomeState extends State<Home> {
         .textTheme
         .apply(displayColor: Theme.of(context).colorScheme.onSurface);
 
-     return Stack(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 15,
-            ),
-            child: Column(
-              children: [
-                searchBox(),
-                Expanded(
-                  child: ListView(
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.only(
-                          top: 50,
-                          bottom: 20,
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              setState(() {
-                                filter = 'all';
-                              });
-                              _runTodoFiltering();
-                            },
-                            child: Text(
-                              'All Todos',
-                              style: TextStyle(
-                                fontSize: 30,
-                                fontWeight: FontWeight.w500,
-                                decoration: filter == 'all' ? TextDecoration.underline : TextDecoration.none
-                              ),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              setState(() {
-                                filter = 'done';
-                              });
-                              _runTodoFiltering();
-                            },
-                            child: Text(
-                              'Done Todos',
-                              style: TextStyle(
-                                fontSize: 30.0,
-                                fontWeight: FontWeight.w500,
-                                decoration: filter == 'done' ? TextDecoration.underline : TextDecoration.none,
-                              ),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              setState(() {
-                                filter = 'undone';
-                              });
-                              _runTodoFiltering();
-                            },
-                            child: Text(
-                              'Undone Todos',
-                              style: TextStyle(
-                                fontSize: 30,
-                                fontWeight: FontWeight.w500,
-                                decoration: filter == 'undone' ? TextDecoration.underline : TextDecoration.none,  
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        margin: const EdgeInsets.only(
-                          top: 10,
-                          bottom: 20,
-                        ),
-                      ),
-                      if (_notFoundMessage.isNotEmpty)
-                        Center(
-                          child: Text(
-                            _notFoundMessage,
-                            style: textTheme.titleLarge,
-                          ),
-                        ),
-                      for (ToDo todoItem in _foundToDo.reversed)
-                        ToDoItem(
-                          todo: todoItem,
-                          onToDoChanged: _handleToDoChange,
-                          onDeleteItem: _deleteToDoItem,
-                        ),
-                    ],
-                  ),
-                )
-              ],
-            ),
+    return Stack(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 15,
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Row(children: [
+          child: Column(
+            children: [
+              searchBox(),
               Expanded(
-                child: Card(
-                    elevation: 10.0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
+                child: ListView(
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(
+                        top: 50,
+                        bottom: 20,
+                      ),
                     ),
-                    child: TextField(
-                      autofocus: true, // get focus on the textfield when widget is initialized
-                      focusNode: _focusNode,
-                      controller: _todoController,
-                      onSubmitted: _addToDoItem,
-                      decoration: const InputDecoration(
-                          hintText: 'Add a new todo item',
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(16.0)),
-                    )),
-              ),
-              Container(
-                margin: const EdgeInsets.only(
-                  bottom: 20,
-                  right: 20,
-                ),
-                child: ElevatedButton(
-                  onPressed: () {
-                    _addToDoItem(_todoController.text);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(60, 60),
-                    elevation: 10.0,
-                  ),
-                  child: const Text(
-                    '+',
-                    style: TextStyle(
-                      fontSize: 40,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              filter = 'all';
+                            });
+                            _runTodoFiltering();
+                          },
+                          child: Text(
+                            'All Todos',
+                            style: TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.w500,
+                                decoration: filter == 'all'
+                                    ? TextDecoration.underline
+                                    : TextDecoration.none),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              filter = 'done';
+                            });
+                            _runTodoFiltering();
+                          },
+                          child: Text(
+                            'Done Todos',
+                            style: TextStyle(
+                              fontSize: 30.0,
+                              fontWeight: FontWeight.w500,
+                              decoration: filter == 'done'
+                                  ? TextDecoration.underline
+                                  : TextDecoration.none,
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              filter = 'undone';
+                            });
+                            _runTodoFiltering();
+                          },
+                          child: Text(
+                            'Undone Todos',
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.w500,
+                              decoration: filter == 'undone'
+                                  ? TextDecoration.underline
+                                  : TextDecoration.none,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
+                    Container(
+                      margin: const EdgeInsets.only(
+                        top: 10,
+                        bottom: 20,
+                      ),
+                    ),
+                    if (_notFoundMessage.isNotEmpty)
+                      Center(
+                        child: Text(
+                          _notFoundMessage,
+                          style: textTheme.titleLarge,
+                        ),
+                      ),
+                    for (ToDo todoItem in _foundToDo.reversed)
+                      ToDoItem(
+                        todo: todoItem,
+                        onToDoChanged: _handleToDoChange,
+                        onDeleteItem: _deleteToDoItem,
+                      ),
+                  ],
                 ),
-              ),
-            ]),
+              )
+            ],
           ),
-        ],
-      );
+        ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Row(children: [
+            Expanded(
+              child: Card(
+                  elevation: 10.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: TextField(
+                    autofocus:
+                        true, // get focus on the textfield when widget is initialized
+                    focusNode: _focusNode,
+                    controller: _todoController,
+                    onSubmitted: _addToDoItem,
+                    decoration: const InputDecoration(
+                        hintText: 'Add a new todo item',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.all(16.0)),
+                  )),
+            ),
+            Container(
+              margin: const EdgeInsets.only(
+                bottom: 20,
+                right: 20,
+              ),
+              child: ElevatedButton(
+                onPressed: () {
+                  _addToDoItem(_todoController.text);
+                },
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(60, 60),
+                  elevation: 10.0,
+                ),
+                child: const Text(
+                  '+',
+                  style: TextStyle(
+                    fontSize: 40,
+                  ),
+                ),
+              ),
+            ),
+          ]),
+        ),
+      ],
+    );
   }
 
   void openDrawer() {
@@ -223,8 +235,7 @@ class _HomeState extends State<Home> {
   }
 
   void _addToDoItem(String todo) {
-
-    if(todo.isNotEmpty) {
+    if (todo.isNotEmpty) {
       setState(() {
         todosList.add(ToDo(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -232,7 +243,7 @@ class _HomeState extends State<Home> {
         ));
       });
     }
-  
+
     _todoController.clear();
     _focusNode.requestFocus(); // return focus to the text field.
   }
@@ -271,14 +282,14 @@ class _HomeState extends State<Home> {
     }).toList();
 
     if (filteredTodos.isEmpty) {
-      switch(filter) {
-        case 'done': 
+      switch (filter) {
+        case 'done':
           _notFoundMessage = 'No done todos yet';
           break;
         case 'undone':
           _notFoundMessage = 'No undone todos';
           break;
-        
+
         case 'all':
           _notFoundMessage = 'No todos yet';
       }
@@ -307,10 +318,14 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildDrawer() {
-    return const SizedBox(
+    return SizedBox(
       width: drawerWidth,
       child: Drawer(
-        child: AccountDetailsPage(),
+        child: AccountDetailsPage(
+          onLogOut: (logout) async {
+            widget.auth.signOut().then((value) => context.go('login'));
+          },
+        ),
       ),
     );
   }

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class AccountDetailsPage extends StatefulWidget {
-  const AccountDetailsPage({super.key});
+  final Function onLogOut;
+
+  const AccountDetailsPage({
+    super.key,
+    required this.onLogOut,
+  });
 
   @override
   State<AccountDetailsPage> createState() => _AccountDetailsPageState();
@@ -21,7 +26,6 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -31,9 +35,20 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
               'Your Details',
               style: textTheme.headlineSmall,
             ),
+            Center(
+              child: ListTile(
+                title: const Text(
+                  'Log out',
+                  style: TextStyle(fontSize: 30),
+                ),
+                onTap: () {
+                  widget.onLogOut(true);
+                },
+              ),
+            ),
           ],
         ),
-      )
+      ),
     );
   }
 }

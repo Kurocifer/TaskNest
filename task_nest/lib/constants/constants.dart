@@ -22,3 +22,10 @@ enum ColorSelection {
   final String label;
   final Color color;
 }
+
+enum TaskNestTab {
+  home(0);
+
+  final int value;
+  const TaskNestTab(this.value);
+}
