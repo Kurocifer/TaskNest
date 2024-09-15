@@ -206,27 +206,28 @@ class _HomeState extends State<Home> {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          /*
           const Icon(
             Icons.menu,
             size: 30,
+          ),*/
+          SizedBox(
+            height: 40.0,
+            width: 40.0,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20.0),
+              child: Image.asset('assets/images/cifer.png'),
+            ),
           ),
           Row(
             children: [
-              ThemeButton(
-                changeThemeMode: widget.changeTheme,
-              ),
               ColorButton(
                 changeColor: widget.changeColor,
                 colorSelected: widget.colorSelected,
               ),
-              SizedBox(
-                height: 40.0,
-                width: 40.0,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20.0),
-                  child: Image.asset('assets/images/cifer.png'),
-                ),
-              )
+              ThemeButton(
+                changeThemeMode: widget.changeTheme,
+              ),
             ],
           )
         ],
@@ -234,5 +235,3 @@ class _HomeState extends State<Home> {
     );
   }
 }
-
-
