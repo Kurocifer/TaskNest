@@ -33,7 +33,7 @@ class _TaskNestState extends State<TaskNest> {
           builder: (context, state) => SignUpPage(
             onSignUP: (SignUpCredentials credentials) async {
               _auth
-                  .signUp(credentials.username, credentials.password)
+                  .signUp(context, credentials.username, credentials.password)
                   .then((_) => context.go('/${TaskNestTab.home.value}'));
             },
           ),
@@ -43,7 +43,7 @@ class _TaskNestState extends State<TaskNest> {
           builder: (context, state) => LoginPage(
             onLogIn: (Credentials credentials) async {
               _auth
-                  .signIn(credentials.username, credentials.password)
+                  .signIn(context, credentials.username, credentials.password)
                   .then((_) => context.go('/${TaskNestTab.home.value}'));
             },
           ),

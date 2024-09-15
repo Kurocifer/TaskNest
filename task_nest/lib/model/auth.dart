@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -10,7 +11,7 @@ class TaskNestAuth extends ChangeNotifier {
 
   // Stores user state properties on platform specific file system.
   final _appCache = AppCache();
-  
+
   Future<bool> get loggedIn => _appCache.isUserLoggedIn();
 
   /// Signs out the current user.
@@ -23,22 +24,24 @@ class TaskNestAuth extends ChangeNotifier {
   }
 
   /// Signs in a user.
-  Future<bool> signIn(String username, String password) async {
+  Future<bool> signIn(
+      BuildContext context, String username, String password) async {
     const url = 'http://localhost:8080/tasknest/login';
 
     final response = await http.post(
       Uri.parse(url),
-      headers: <String, String> {
+      headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(<String, String> {
+      body: jsonEncode(<String, String>{
         "username": username,
         "password": password,
       }),
     );
 
+    final responseData = jsonDecode(response.body);
+
     if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
       final token = responseData['token'];
       final username = responseData['username'];
       final userId = responseData['id'];
@@ -48,29 +51,35 @@ class TaskNestAuth extends ChangeNotifier {
       notifyListeners();
       return _loggedIn;
     } else {
+      String errorMessage = responseData['error'];
       _loggedIn = false;
       _appCache.invalidate();
       notifyListeners();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occured: $errorMessage')),
+      );
       throw Exception('Failed to login: ${response.body}');
     }
   }
 
-  Future<bool> signUp(String username, String password) async {
+  Future<bool> signUp(
+      BuildContext context, String username, String password) async {
     const url = 'http://localhost:8080/tasknest/register';
 
     final response = await http.post(
       Uri.parse(url),
-      headers: <String, String> {
+      headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(<String, String> {
+      body: jsonEncode(<String, String>{
         "username": username,
         "password": password,
       }),
     );
 
+    final responseData = jsonDecode(response.body);
+
     if (response.statusCode == 201) {
-      final responseData = jsonDecode(response.body);
       final token = responseData['token'];
       final username = responseData['username'];
       final userId = responseData['id'];
@@ -80,12 +89,14 @@ class TaskNestAuth extends ChangeNotifier {
       notifyListeners();
       return _loggedIn;
     } else {
+      String errorMessage = responseData['error'];
       _loggedIn = false;
       _appCache.invalidate();
       notifyListeners();
-      throw Exception('Failed to sign up: ${response.body}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occured: $errorMessage')),
+      );
+      throw Exception('Failed to login: ${response.body}');
     }
   }
-
-
 }
