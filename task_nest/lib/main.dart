@@ -33,7 +33,7 @@ class _TaskNestState extends State<TaskNest> {
           builder: (context, state) => SignUpPage(
             onSignUP: (SignUpCredentials credentials) async {
               _auth
-                  .signIn(credentials.username, credentials.password)
+                  .signUp(context, credentials.username, credentials.password)
                   .then((_) => context.go('/${TaskNestTab.home.value}'));
             },
           ),
@@ -43,7 +43,7 @@ class _TaskNestState extends State<TaskNest> {
           builder: (context, state) => LoginPage(
             onLogIn: (Credentials credentials) async {
               _auth
-                  .signIn(credentials.username, credentials.password)
+                  .signIn(context, credentials.username, credentials.password)
                   .then((_) => context.go('/${TaskNestTab.home.value}'));
             },
           ),
@@ -84,7 +84,6 @@ class _TaskNestState extends State<TaskNest> {
       BuildContext context, GoRouterState state) async {
     final loggedIn = await _auth.loggedIn;
     final isOnLoginPage = state.matchedLocation == '/login';
-    final isOnSignUpPage = state.matchedLocation == '/signup';
 
     // Go to /login if the user is not signed in
     //if (!loggedIn) {

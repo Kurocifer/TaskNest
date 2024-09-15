@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:task_nest/components/color_button.dart';
 import 'package:task_nest/components/theme_button.dart';
 import 'package:task_nest/constants/constants.dart';
+import 'package:task_nest/model/api_service.dart';
 import 'package:task_nest/model/auth.dart';
 import 'package:task_nest/screens/account_details_page.dart';
 import 'package:go_router/go_router.dart';
@@ -36,17 +37,19 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   String filter = 'all'; // Show all Todos by default
   List<ToDo> _foundToDo = [];
-  final List<ToDo> todosList = ToDo.todoList();
+  List<ToDo> todosList = [];
   final _todoController = TextEditingController();
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   static const double drawerWidth = 375.0;
   List<ToDo> filteredTodos = [];
   final FocusNode _focusNode = FocusNode();
+  final ApiService apiService = ApiService();
 
   @override
   void initState() {
     _foundToDo = todosList;
     super.initState();
+    _fetchTodos();
   }
 
   @override
@@ -217,31 +220,68 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Future<void> _fetchTodos() async {
+    try {
+      final List<ToDo> fetchedTodos = await apiService.fetchTodos();
+      setState(() {
+        todosList = fetchedTodos;
+        _foundToDo = fetchedTodos;
+      });
+    } catch (e) {
+      print('Error fetching todos: $e');
+    }
+  }
+
   void openDrawer() {
     scaffoldKey.currentState!.openDrawer();
   }
 
-  void _handleToDoChange(ToDo todo) {
-    setState(() {
-      todo.isDone = !todo.isDone;
-      _runTodoFiltering();
-    });
-  }
-
-  void _deleteToDoItem(String id) {
-    setState(() {
-      todosList.removeWhere((item) => item.id == id);
-    });
-  }
-
-  void _addToDoItem(String todo) {
-    if (todo.isNotEmpty) {
+  void _handleToDoChange(ToDo todo) async {
+    try {
+      await apiService.updateTodoStatus(
+          todo.id, !todo.isDone); // Toggle the status
+      print('Todo status updated for ID: ${todo.id}');
       setState(() {
-        todosList.add(ToDo(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          todoText: todo,
-        ));
+        todo.isDone = !todo.isDone;
+        _runTodoFiltering(); // call this here so when viewing done todos and a todo is unmarked, it should not longer be viewed.
       });
+    } catch (e) {
+      print('Error updating todo status: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update todo status: $e')),
+      );
+    }
+  }
+
+  void _deleteToDoItem(int id) async {
+    int status = await apiService.deleteTodo(id);
+    setState(() {
+      if (status == 204) {
+        todosList.removeWhere((item) => item.id == id);
+      }
+    });
+  }
+
+  void _addToDoItem(String todoTask) async {
+    if (todoTask.isNotEmpty) {
+      try {
+        final createdTodo = await apiService.createTodo(todoTask);
+        print(
+            'Todo created: ${createdTodo.todoText} with ID: ${createdTodo.id}');
+        setState(() {
+          todosList.add(createdTodo);
+        });
+      } catch (e) {
+        print('Error creating todo: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create todo: $e')),
+        );
+      }
+    } else {
+      print('Task cannot be empty');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Task cannot be empty')),
+      );
     }
 
     _todoController.clear();
@@ -256,7 +296,7 @@ class _HomeState extends State<Home> {
       results = todosList;
     } else {
       results = filteredTodos
-          .where((item) => item.todoText!
+          .where((item) => item.todoText
               .toLowerCase()
               .contains(enteredKeyword.toLowerCase()))
           .toList();

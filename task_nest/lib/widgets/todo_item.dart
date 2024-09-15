@@ -31,7 +31,7 @@ class ToDoItem extends StatelessWidget {
           todo.isDone ? Icons.check_box : Icons.check_box_outline_blank,
         ),
         title: Text(
-          todo.todoText!,
+          todo.todoText,
           style: TextStyle(
             fontSize: 16,
             decoration: todo.isDone ? TextDecoration.lineThrough : null,

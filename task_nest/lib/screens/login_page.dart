@@ -9,10 +9,10 @@ class Credentials {
 }
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({required this.onLogIn, super.key});
-
   /// Called when users sign in with [Credentials].
   final ValueChanged<Credentials> onLogIn;
+
+  const LoginPage({required this.onLogIn, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +118,6 @@ class LoginForm extends StatelessWidget {
               ElevatedButton(
                 child: const Text("Don't Yet have an Account"),
                 onPressed: () {
-                  print('signt up');
                   context.go('/signup');
                 },
               ),
