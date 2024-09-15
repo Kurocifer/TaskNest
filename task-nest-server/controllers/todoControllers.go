@@ -10,6 +10,9 @@ import (
 	"github.com/kurocifer/TaskNest/task-nest-server/models"
 )
 
+// CreatesTodo creaes a todo item using the data passed from the request body it is parsed,
+// for the user with the Bearer token in it's reqeust header.
+// if successful creates the todo and saves it into the database, on failure returns an appropriate http status for the error.
 func CreateTodo(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -51,6 +54,7 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(todo)
 }
 
+// GetTodos gets all the todos for the user with the bearer token in it's request header.
 func GetTodos(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -96,6 +100,9 @@ func GetTodos(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// DeleteTodo deletes from the database with the same ID as that in it's URL, that belongs
+// to the user with the bearer token in it's requet header.
+// Returns http.StatusNoContent (204) on success or an appropriate status on failure.
 func DeleteTodo(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -136,6 +143,9 @@ func DeleteTodo(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// UpdateTodosStatus changes the done status of a todo from true to false depending on the value in it's url,
+// for the todo in the database with the same ID as that in the url, which belongs to the user with the bearer token contained in the reqeust body.
+// Returns an http.StatusOk on success, or an appropriate failure status on failure.
 func UpdateTodoStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -154,16 +164,21 @@ func UpdateTodoStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	todoStatusMap := map[string]bool{
+		"true":  true,
+		"false": false,
+	}
+
 	// Extract the Todo ID and new status from the URL
 	todoId := r.URL.Query().Get("id")
 	todoStatus := r.URL.Query().Get("done")
-	if todoId == "" || todoStatus == "" {
+	if _, exits := todoStatusMap[todoStatus]; !exits || todoId == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	// convert todoStatus to boolean
-	done := todoStatus == "true"
+	done := todoStatusMap[todoStatus]
 	query := "UPDATE todos SET done = ? WHERE id = ? AND user_id = ?"
 	_, err = db.DB.Exec(query, done, todoId, claims.Username)
 	if err != nil {

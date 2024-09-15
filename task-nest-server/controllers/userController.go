@@ -14,15 +14,20 @@ import (
 
 var jwtKey = []byte("wenderlichPrime_")
 
+// hashPassword hashes the password string using bcrypt.
+// Returns the hashed password.
 func hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(bytes), err
 }
 
+// verifyPassword compares a bcrypt hashed password with it's passible plain text.
+// Returns nil on success, or error on failure.
 func verifyPassword(hashedPassword, plainPassword string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(plainPassword))
 }
 
+// RegisterUser is the handler function for Registering a user in the db database.
 func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	//check if it's a POST reqeust
 	if r.Method != http.MethodPost {
@@ -77,6 +82,8 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(createdUser)
 }
 
+// LoginUser is the handler function that is called to log in a user.
+// Returns a generated JWT for the user's session.
 func LoginUser(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -111,6 +118,9 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"token": token})
 }
 
+// generateJWT generates the JWT token that expires in 1 hour for a user's session,
+// using username for building the claim and signs it using a secrete key.
+// Returns the signed generated JWT on Success, or error on failure.
 func genereteJWT(username string) (string, error) {
 	expirationTime := time.Now().Add(1 * time.Hour) // expires in 1 hour
 

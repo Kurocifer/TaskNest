@@ -12,7 +12,8 @@ import (
 
 var DB *sql.DB
 
-func SetupDatabase() {
+// SetUpDatabase sets up and Establishes the connection to the database
+func SetUpDatabase() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")

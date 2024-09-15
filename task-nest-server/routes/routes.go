@@ -4,11 +4,10 @@ import (
 	"net/http"
 
 	"github.com/kurocifer/TaskNest/task-nest-server/controllers"
-	"github.com/kurocifer/TaskNest/task-nest-server/db"
 )
 
+// SetupRoutes sets up the routes, linking the different routes to their respective handle functions.
 func SetUpRoutes() {
-	db.SetupDatabase()
 
 	http.HandleFunc("/tasknest/register", controllers.RegisterUser)
 	http.HandleFunc("/tasknest/login", controllers.LoginUser)
