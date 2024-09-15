@@ -10,7 +10,7 @@ class AccountDetailsPage extends StatefulWidget {
 class _AccountDetailsPageState extends State<AccountDetailsPage> {
   @override
   Widget build(BuildContext context) {
-    final TextTheme = Theme.of(context)
+    final textTheme = Theme.of(context)
         .textTheme
         .apply(displayColor: Theme.of(context).colorScheme.onSurface);
 
@@ -29,7 +29,7 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
           children: [
             Text(
               'Your Details',
-              style: TextTheme.headlineSmall,
+              style: textTheme.headlineSmall,
             ),
           ],
         ),

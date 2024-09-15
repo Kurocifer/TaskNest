@@ -16,7 +16,7 @@ class TaskNest extends StatefulWidget {
 
 class _TaskNestState extends State<TaskNest> {
   // This widget is the root of your application.
-  ThemeMode themeMode = ThemeMode.light; // default theme
+  ThemeMode themeMode = ThemeMode.dark; // default theme
   ColorSelection colorSelected = ColorSelection.green; // default app color
   
   void  changeColor(int value) {

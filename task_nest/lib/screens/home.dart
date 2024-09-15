@@ -27,11 +27,14 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  String filter = 'all'; // Show all Todos by default
   List<ToDo> _foundToDo = [];
-  final todosList = ToDo.todoList();
+  final List<ToDo> todosList = ToDo.todoList();
   final _todoController = TextEditingController();
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   static const double drawerWidth = 375.0;
+  List<ToDo> filteredTodos = [];
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
@@ -41,16 +44,24 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context)
-        .textTheme
-        .apply(displayColor: Theme.of(context).colorScheme.onSurface);
+    
+    // Filter todos based on the value of filter
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       key: scaffoldKey,
       drawer: _buildDrawer(),
       appBar: _buildAppBar(),
-      body: Stack(
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    final textTheme = Theme.of(context)
+        .textTheme
+        .apply(displayColor: Theme.of(context).colorScheme.onSurface);
+
+     return Stack(
         children: [
           Container(
             padding: const EdgeInsets.symmetric(
@@ -68,12 +79,64 @@ class _HomeState extends State<Home> {
                           top: 50,
                           bottom: 20,
                         ),
-                        child: const Text(
-                          'All ToDos',
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.w500,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                filter = 'all';
+                              });
+                              _runTodoFiltering();
+                            },
+                            child: Text(
+                              'All Todos',
+                              style: TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.w500,
+                                decoration: filter == 'all' ? TextDecoration.underline : TextDecoration.none
+                              ),
+                            ),
                           ),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                filter = 'done';
+                              });
+                              _runTodoFiltering();
+                            },
+                            child: Text(
+                              'Done Todos',
+                              style: TextStyle(
+                                fontSize: 30.0,
+                                fontWeight: FontWeight.w500,
+                                decoration: filter == 'done' ? TextDecoration.underline : TextDecoration.none,
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                filter = 'undone';
+                              });
+                              _runTodoFiltering();
+                            },
+                            child: Text(
+                              'Undone Todos',
+                              style: TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.w500,
+                                decoration: filter == 'undone' ? TextDecoration.underline : TextDecoration.none,  
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        margin: const EdgeInsets.only(
+                          top: 10,
+                          bottom: 20,
                         ),
                       ),
                       if (_notFoundMessage.isNotEmpty)
@@ -105,7 +168,10 @@ class _HomeState extends State<Home> {
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                     child: TextField(
+                      autofocus: true, // get focus on the textfield when widget is initialized
+                      focusNode: _focusNode,
                       controller: _todoController,
+                      onSubmitted: _addToDoItem,
                       decoration: const InputDecoration(
                           hintText: 'Add a new todo item',
                           border: InputBorder.none,
@@ -136,8 +202,7 @@ class _HomeState extends State<Home> {
             ]),
           ),
         ],
-      ),
-    );
+      );
   }
 
   void openDrawer() {
@@ -147,6 +212,7 @@ class _HomeState extends State<Home> {
   void _handleToDoChange(ToDo todo) {
     setState(() {
       todo.isDone = !todo.isDone;
+      _runTodoFiltering();
     });
   }
 
@@ -156,14 +222,19 @@ class _HomeState extends State<Home> {
     });
   }
 
-  void _addToDoItem(String toDo) {
-    setState(() {
-      todosList.add(ToDo(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        todoText: toDo,
-      ));
-    });
+  void _addToDoItem(String todo) {
+
+    if(todo.isNotEmpty) {
+      setState(() {
+        todosList.add(ToDo(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          todoText: todo,
+        ));
+      });
+    }
+  
     _todoController.clear();
+    _focusNode.requestFocus(); // return focus to the text field.
   }
 
   void _runFilter(String enteredKeyword) {
@@ -173,7 +244,7 @@ class _HomeState extends State<Home> {
     if (enteredKeyword.isEmpty) {
       results = todosList;
     } else {
-      results = todosList
+      results = filteredTodos
           .where((item) => item.todoText!
               .toLowerCase()
               .contains(enteredKeyword.toLowerCase()))
@@ -188,6 +259,32 @@ class _HomeState extends State<Home> {
     setState(() {
       _foundToDo = results;
       _notFoundMessage = message;
+    });
+  }
+
+  void _runTodoFiltering() {
+    _notFoundMessage = '';
+    filteredTodos = todosList.where((todo) {
+      if (filter == 'done') return todo.isDone; // return only done todos
+      if (filter == 'undone') return !todo.isDone; // return only undone todos
+      return true; // return all todos
+    }).toList();
+
+    if (filteredTodos.isEmpty) {
+      switch(filter) {
+        case 'done': 
+          _notFoundMessage = 'No done todos yet';
+          break;
+        case 'undone':
+          _notFoundMessage = 'No undone todos';
+          break;
+        
+        case 'all':
+          _notFoundMessage = 'No todos yet';
+      }
+    }
+    setState(() {
+      _foundToDo = filteredTodos;
     });
   }
 
@@ -212,7 +309,6 @@ class _HomeState extends State<Home> {
   Widget _buildDrawer() {
     return const SizedBox(
       width: drawerWidth,
-      
       child: Drawer(
         child: AccountDetailsPage(),
       ),
