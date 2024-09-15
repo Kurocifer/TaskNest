@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+
 /// Credential Class
-class Credentials {
-  Credentials(this.username, this.password);
+class SignUpCredentials {
+  SignUpCredentials(this.username, this.password);
   final String username;
   final String password;
 }
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({required this.onLogIn, super.key});
-
+class SignUpPage extends StatelessWidget {
   /// Called when users sign in with [Credentials].
-  final ValueChanged<Credentials> onLogIn;
+  final ValueChanged<SignUpCredentials> onSignUP;
+
+  const SignUpPage({required this.onSignUP, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +37,8 @@ class LoginPage extends StatelessWidget {
                 Expanded(
                   child: FractionallySizedBox(
                       widthFactor: 0.70,
-                      child: LoginForm(
-                        onLogIn: onLogIn,
+                      child: SignUpForm(
+                        onSignUP: onSignUP,
                       )),
                 ),
               ],
@@ -47,7 +48,7 @@ class LoginPage extends StatelessWidget {
             return Column(
               children: [
                 Expanded(
-                  child: LoginForm(onLogIn: onLogIn),
+                  child: SignUpForm(onSignUP: onSignUP),
                 ),
               ],
             );
@@ -58,12 +59,12 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-class LoginForm extends StatelessWidget {
-  LoginForm({required this.onLogIn, super.key});
-
+class SignUpForm extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final ValueChanged<Credentials> onLogIn;
+  final ValueChanged<SignUpCredentials> onSignUP;
+
+  SignUpForm({required this.onSignUP, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -73,12 +74,12 @@ class LoginForm extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
-            height: 40.0,
-            width: 40.0,
-            child: ClipRRect(
-                borderRadius: BorderRadius.circular(20.0),
-                child: Image.asset('assets/images/cifer.png')),
-          ),
+          height: 40.0,
+          width: 40.0,
+          child: ClipRRect(
+              borderRadius: BorderRadius.circular(20.0),
+              child: Image.asset('assets/images/cifer.png')),
+        ),
           const SizedBox(height: 20),
           TextField(
             controller: _usernameController,
@@ -109,19 +110,19 @@ class LoginForm extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               ElevatedButton(
-                child: const Text('Login'),
-                onPressed: () async {
-                  onLogIn(Credentials(_usernameController.value.text,
+            child: const Text('SignUp'),
+            onPressed: () async {
+                  onSignUP(SignUpCredentials(_usernameController.value.text,
                       _passwordController.value.text));
                 },
-              ),
-              ElevatedButton(
-                child: const Text("Don't Yet have an Account"),
-                onPressed: () {
-                  print('signt up');
-                  context.go('/signup');
-                },
-              ),
+          ),
+          ElevatedButton(
+            child: const Text("Already have an Acount"),
+            onPressed: () {
+              print('login');
+              context.go('/login');
+            },
+          ),
             ],
           )
         ],

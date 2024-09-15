@@ -323,7 +323,7 @@ class _HomeState extends State<Home> {
       child: Drawer(
         child: AccountDetailsPage(
           onLogOut: (logout) async {
-            widget.auth.signOut().then((value) => context.go('login'));
+            widget.auth.signOut().then((value) => context.go('/login'));
           },
         ),
       ),

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:task_nest/constants/constants.dart';
 import 'package:task_nest/model/auth.dart';
 import 'package:task_nest/screens/login_page.dart';
+import 'package:task_nest/screens/signup_page.dart';
 import './screens/home.dart';
 
 void main() {
@@ -28,13 +29,25 @@ class _TaskNestState extends State<TaskNest> {
       redirect: _appRedirect,
       routes: [
         GoRoute(
-            path: '/login',
-            builder: (context, state) =>
-                LoginPage(onLogIn: (Credentials credentials) async {
-                  _auth
-                      .signIn(credentials.username, credentials.password)
-                      .then((_) => context.go('/${TaskNestTab.home.value}'));
-                })),
+          path: '/signup',
+          builder: (context, state) => SignUpPage(
+            onSignUP: (SignUpCredentials credentials) async {
+              _auth
+                  .signIn(credentials.username, credentials.password)
+                  .then((_) => context.go('/${TaskNestTab.home.value}'));
+            },
+          ),
+        ),
+        GoRoute(
+          path: '/login',
+          builder: (context, state) => LoginPage(
+            onLogIn: (Credentials credentials) async {
+              _auth
+                  .signIn(credentials.username, credentials.password)
+                  .then((_) => context.go('/${TaskNestTab.home.value}'));
+            },
+          ),
+        ),
         GoRoute(
           path: '/:tab',
           builder: (context, state) {
@@ -52,6 +65,12 @@ class _TaskNestState extends State<TaskNest> {
         return MaterialPage(
           key: state.pageKey,
           child: Scaffold(
+            appBar: AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
             body: Center(
               child: Text(
                 state.error.toString(),
@@ -61,19 +80,23 @@ class _TaskNestState extends State<TaskNest> {
         );
       });
 
-  Future<String?> _appRedirect(BuildContext context, GoRouterState state) async {
+  Future<String?> _appRedirect(
+      BuildContext context, GoRouterState state) async {
     final loggedIn = await _auth.loggedIn;
     final isOnLoginPage = state.matchedLocation == '/login';
+    final isOnSignUpPage = state.matchedLocation == '/signup';
 
     // Go to /login if the user is not signed in
-    if (!loggedIn) {
-      return '/login';
-    }
+    //if (!loggedIn) {
+    //  return '/login';
+    //}
 
     // Go to root if the user is already signed in
-    else if (loggedIn && isOnLoginPage) {
+    if (loggedIn && isOnLoginPage) {
       return '/${TaskNestTab.home.value}';
     }
+
+    
     return null;
   }
 
