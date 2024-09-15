@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
+
 import 'app_cache.dart';
 
 /// A mock authentication service.
@@ -10,7 +10,7 @@ class TaskNestAuth extends ChangeNotifier {
 
   // Stores user state properties on platform specific file system.
   final _appCache = AppCache();
-
+  
   Future<bool> get loggedIn => _appCache.isUserLoggedIn();
 
   /// Signs out the current user.
@@ -22,28 +22,16 @@ class TaskNestAuth extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Helper method to show SnackBar
-  void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
-  }
-
   /// Signs in a user.
-  Future<bool> signIn(BuildContext context, String username, String password) async {
-    if (username.isEmpty || password.isEmpty) {
-      _showSnackBar(context, 'Username and password cannot be empty.');
-      return false;
-    }
-
+  Future<bool> signIn(String username, String password) async {
     const url = 'http://localhost:8080/tasknest/login';
 
     final response = await http.post(
       Uri.parse(url),
-      headers: <String, String>{
+      headers: <String, String> {
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(<String, String>{
+      body: jsonEncode(<String, String> {
         "username": username,
         "password": password,
       }),
@@ -63,31 +51,19 @@ class TaskNestAuth extends ChangeNotifier {
       _loggedIn = false;
       _appCache.invalidate();
       notifyListeners();
-      // Handle specific error messages based on status code or response body
-      if (response.statusCode == 401) {
-        _showSnackBar(context, 'Invalid username or password.');
-      } else {
-        _showSnackBar(context, 'Failed to login: ${response.body}');
-      }
       throw Exception('Failed to login: ${response.body}');
     }
   }
 
-  Future<bool> signUp(BuildContext context, String username, String password) async {
-    if (username.isEmpty || password.isEmpty) {
-      _showSnackBar(context, 'Username and password cannot be empty.');
-      _loggedIn = false;
-      return false;
-    }
-
+  Future<bool> signUp(String username, String password) async {
     const url = 'http://localhost:8080/tasknest/register';
 
     final response = await http.post(
       Uri.parse(url),
-      headers: <String, String>{
+      headers: <String, String> {
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(<String, String>{
+      body: jsonEncode(<String, String> {
         "username": username,
         "password": password,
       }),
@@ -107,13 +83,9 @@ class TaskNestAuth extends ChangeNotifier {
       _loggedIn = false;
       _appCache.invalidate();
       notifyListeners();
-      // Handle specific error messages
-      if (response.statusCode == 400) {
-        _showSnackBar(context, 'Username already exists.');
-      } else {
-        _showSnackBar(context, 'Failed to sign up: ${response.body}');
-      }
       throw Exception('Failed to sign up: ${response.body}');
     }
   }
+
+
 }
