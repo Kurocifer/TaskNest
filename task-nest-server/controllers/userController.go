@@ -3,7 +3,9 @@ package controllers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -36,11 +38,27 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var user models.UserAuthRequestBody
-	json.NewDecoder(r.Body).Decode(&user)
+	err := json.NewDecoder(r.Body).Decode(&user)
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid input."})
+		return
+	}
+
+	// Trim whitespace and check for empty values
+	checkUsername := strings.TrimSpace(user.Username)
+	checkPassword := strings.TrimSpace(user.Password)
+
+	if checkPassword == "" || checkUsername == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Username or password cannot be empty or contain only white space"})
+		return
+	}
 
 	//check if user already exists
 	query := "SELECT id FROM users WHERE username = ?"
-	err := db.DB.QueryRow(query, user.Username).Scan(new(int))
+	err = db.DB.QueryRow(query, user.Username).Scan(new(int))
 
 	if err == nil {
 		// user already exists
@@ -51,6 +69,16 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	// generate this token before saving user instead of generating after saving user
+	// because a user might be created successfully but some error prevented token creation
+	// which can lead to an unknown pending user in the database
+	token, err := genereteJWT(user.Username)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	fmt.Printf("generated token %s", token)
 
 	//save user to database
 	hashedPassword, err := hashPassword(user.Password)
@@ -74,7 +102,11 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var createdUser models.UserRegistrationResponse
+	createdUser := models.UserAuthResponseBody{
+		ID:       int(userID),
+		Username: user.Username,
+		Token:    token,
+	}
 
 	createdUser.Username = user.Username
 	createdUser.ID = int(userID)
@@ -91,12 +123,27 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var user models.UserAuthRequestBody
-	json.NewDecoder(r.Body).Decode(&user)
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid input."})
+		return
+	}
+
+	// Trim whitespace and check for empty values
+	user.Username = strings.TrimSpace(user.Username)
+	user.Password = strings.TrimSpace(user.Password)
+
+	if user.Username == "" || user.Password == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Username or password cannot be empty or contain only white space"})
+		return
+	}
 
 	// compare passwords
 	var retrievedUser models.User
 	query := "SELECT id, password FROM users WHERE username = ?"
-	err := db.DB.QueryRow(query, user.Username).Scan(&retrievedUser.ID, &retrievedUser.Password)
+	err = db.DB.QueryRow(query, user.Username).Scan(&retrievedUser.ID, &retrievedUser.Password)
 
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -105,6 +152,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	if err := verifyPassword(retrievedUser.Password, user.Password); err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Wrong username or password."})
 		return
 	}
 
@@ -114,8 +162,14 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userResponseDetails := models.UserAuthResponseBody{
+		ID:       retrievedUser.ID,
+		Username: user.Username,
+		Token:    token,
+	}
+
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"token": token})
+	json.NewEncoder(w).Encode(userResponseDetails)
 }
 
 // generateJWT generates the JWT token that expires in 1 hour for a user's session,
