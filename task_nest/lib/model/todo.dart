@@ -1,6 +1,6 @@
 class ToDo {
-  String? id;
-  String? todoText;
+  int id;
+  String todoText;
   bool isDone;
 
   ToDo({
@@ -9,9 +9,17 @@ class ToDo {
     this.isDone = false,
   });
 
+  factory ToDo.fromJson(Map<String, dynamic> json) {
+    return ToDo(
+      id: json['id'],
+      todoText: json['task'],
+      isDone: json['done'],
+    );
+  }
+
   static List<ToDo> todoList() {
     return [
-      ToDo(id: '00', todoText: 'Live',),
+      ToDo(id: 0, todoText: 'Live',),
     ];
   }
 }

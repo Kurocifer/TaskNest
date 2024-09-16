@@ -7,7 +7,13 @@ type Todo struct {
 	Done     bool   `json:"done"`
 }
 
+type FoundTodo struct {
+	ID   int    `json:"id"`
+	Task string `json:"task"`
+	Done bool   `json:"done"`
+}
+
 type UserTodos struct {
-	UserId string `json:"user_name"`
-	Todos  []Todo `json:"todos"`
+	UserId string      `json:"user_name"`
+	Todos  []FoundTodo `json:"todos"`
 }

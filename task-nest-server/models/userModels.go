@@ -7,9 +7,10 @@ type UserAuthRequestBody struct {
 	Password string `json:"password"`
 }
 
-type UserRegistrationResponse struct {
+type UserAuthResponseBody struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
+	Token    string `json:"token"`
 }
 
 type User struct {

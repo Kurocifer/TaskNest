@@ -86,7 +86,7 @@ func GetTodos(w http.ResponseWriter, r *http.Request) {
 
 	userTodos.UserId = claims.Username
 	for rows.Next() {
-		var todo models.Todo
+		var todo models.FoundTodo
 
 		if err := rows.Scan(&todo.ID, &todo.Task, &todo.Done); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
