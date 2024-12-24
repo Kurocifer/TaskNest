@@ -24,8 +24,7 @@ enum ColorSelection {
 }
 
 enum TaskNestTab {
-  home(0),
-  signup(1);
+  home(0);
 
   final int value;
   const TaskNestTab(this.value);

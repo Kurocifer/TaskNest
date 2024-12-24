@@ -97,7 +97,7 @@ class _HomeState extends State<Home> {
                             setState(() {
                               filter = 'all';
                             });
-                            _runTodoFiltering();
+                            _runTodoFiltering(todosList);
                           },
                           child: Text(
                             'All Todos',
@@ -114,7 +114,7 @@ class _HomeState extends State<Home> {
                             setState(() {
                               filter = 'done';
                             });
-                            _runTodoFiltering();
+                            _runTodoFiltering(todosList);
                           },
                           child: Text(
                             'Done Todos',
@@ -132,7 +132,7 @@ class _HomeState extends State<Home> {
                             setState(() {
                               filter = 'undone';
                             });
-                            _runTodoFiltering();
+                            _runTodoFiltering(todosList);
                           },
                           child: Text(
                             'Undone Todos',
@@ -243,7 +243,7 @@ class _HomeState extends State<Home> {
       print('Todo status updated for ID: ${todo.id}');
       setState(() {
         todo.isDone = !todo.isDone;
-        _runTodoFiltering(); // call this here so when viewing done todos and a todo is unmarked, it should not longer be viewed.
+        _runTodoFiltering(todosList); // call this here so when viewing done todos and a todo is unmarked, it should not longer be viewed.
       });
     } catch (e) {
       print('Error updating todo status: $e');
@@ -258,6 +258,7 @@ class _HomeState extends State<Home> {
     setState(() {
       if (status == 204) {
         todosList.removeWhere((item) => item.id == id);
+        _runTodoFiltering(todosList);
       }
     });
   }
@@ -270,6 +271,7 @@ class _HomeState extends State<Home> {
             'Todo created: ${createdTodo.todoText} with ID: ${createdTodo.id}');
         setState(() {
           todosList.add(createdTodo);
+          _runTodoFiltering(todosList);
         });
       } catch (e) {
         print('Error creating todo: $e');
@@ -295,7 +297,7 @@ class _HomeState extends State<Home> {
     if (enteredKeyword.isEmpty) {
       results = todosList;
     } else {
-      results = filteredTodos
+      results = todosList
           .where((item) => item.todoText
               .toLowerCase()
               .contains(enteredKeyword.toLowerCase()))
@@ -310,12 +312,13 @@ class _HomeState extends State<Home> {
     setState(() {
       _foundToDo = results;
       _notFoundMessage = message;
+      _runTodoFiltering(results);
     });
   }
 
-  void _runTodoFiltering() {
+  void _runTodoFiltering(List<ToDo> todoList) {
     _notFoundMessage = '';
-    filteredTodos = todosList.where((todo) {
+    filteredTodos = todoList.where((todo) {
       if (filter == 'done') return todo.isDone; // return only done todos
       if (filter == 'undone') return !todo.isDone; // return only undone todos
       return true; // return all todos

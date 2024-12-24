@@ -26,7 +26,9 @@ class ColorButton extends StatelessWidget {
         return List.generate(
           ColorSelection.values.length,
           (index) {
+          print('color selected ${colorSelected.label}');
             final currentColor = ColorSelection.values[index];
+            print('current color ${currentColor.label}');
             return PopupMenuItem(
               value: index,
               enabled: currentColor != colorSelected,
